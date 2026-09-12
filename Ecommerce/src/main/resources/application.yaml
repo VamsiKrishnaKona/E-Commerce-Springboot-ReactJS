@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: Ecommerce
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/userDB
+    username: postgres
+    password: root
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        hbm2ddl:
+          auto: update
+
