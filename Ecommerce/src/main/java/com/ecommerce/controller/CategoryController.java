@@ -8,9 +8,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.List;
 
 @RestController
 public class CategoryController
@@ -30,10 +27,10 @@ public class CategoryController
     }
 
     @PostMapping("api/public/categories")
-    public ResponseEntity<String> createCategory(@Valid @RequestBody Category categoryRequest)
+    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryDTO categoryRequest)
     {
-        String s = categoryService.addCategory(categoryRequest);
-        return new ResponseEntity<>(s, HttpStatus.OK);
+        CategoryDTO categoryDTO = categoryService.addCategory(categoryRequest);
+        return new ResponseEntity<>(categoryDTO, HttpStatus.OK);
     }
 
     @DeleteMapping("api/public/categories/{categoryId}")

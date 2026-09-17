@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface CategoryRepository extends JpaRepository<Category, Long>
 {
 
-    Optional<Category> findByCategoryName(@NotBlank(message = "Category cannot be blank.") String categoryName);
+    Category findByCategoryName(@NotBlank(message = "Category cannot be blank.") String categoryName);
 }

@@ -10,7 +10,7 @@ public interface CategoryService
 {
     CategoryResponse findCategories();
 
-    String addCategory(Category category);
+    CategoryDTO addCategory(CategoryDTO category);
 
     String deleteCategory(Long categoryId);
 
