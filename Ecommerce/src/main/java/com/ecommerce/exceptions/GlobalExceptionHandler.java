@@ -40,4 +40,12 @@ public class GlobalExceptionHandler
         String message = exception.getMessage();
         return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CategoryAlreadyExistsWithAnotherIdException.class)
+    public ResponseEntity<String> categoryAlreadyExistsWithAnotherId(
+            CategoryAlreadyExistsWithAnotherIdException exception)
+    {
+        String message = exception.getMessage();
+        return new ResponseEntity<>(message, HttpStatus.CONFLICT);
+    }
 }

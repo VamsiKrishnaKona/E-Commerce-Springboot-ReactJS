@@ -42,7 +42,7 @@ public class CategoryController
 
     @PutMapping("api/public/categories/{categoryId}")
     public ResponseEntity<String> updateCategory(@PathVariable Long categoryId,
-                                                 @RequestBody Category categoryUpdateRequest)
+                                                 @Valid @RequestBody CategoryDTO categoryUpdateRequest)
     {
         String response = categoryService.updateCategory(categoryId, categoryUpdateRequest);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -2,6 +2,7 @@ package com.ecommerce.service;
 
 
 import com.ecommerce.exceptions.APIException;
+import com.ecommerce.exceptions.CategoryAlreadyExistsWithAnotherIdException;
 import com.ecommerce.exceptions.ResourceNotFoundException;
 import com.ecommerce.model.Category;
 import com.ecommerce.payload.CategoryDTO;
@@ -80,14 +81,20 @@ public class CategoryServiceImpl implements CategoryService
     }
 
     @Override
-    public String updateCategory(Long categoryId, Category categoryUpdateRequest)
+    public String updateCategory(Long categoryId, CategoryDTO categoryUpdateRequest)
     {
+        Category category = modelMapper.map(categoryUpdateRequest, Category.class);
         Optional<Category> optCategory = categoryRepository.findById(categoryId);
+
+        Category alreadyExistedWithDifferentID = categoryRepository.findByCategoryName(category.getCategoryName());
+
+        if(alreadyExistedWithDifferentID != null) throw
+                new CategoryAlreadyExistsWithAnotherIdException("Category already exists with another Identity.");
 
         if(optCategory.isPresent())
         {
             Category existedCategory = optCategory.get();
-            existedCategory.setCategoryName(categoryUpdateRequest.getCategoryName());
+            existedCategory.setCategoryName(category.getCategoryName());
             categoryRepository.save(existedCategory);
 
             return "category updated successfully";
