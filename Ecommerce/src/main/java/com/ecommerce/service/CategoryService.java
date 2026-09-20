@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CategoryService 
 {
-    CategoryResponse findCategories();
+    CategoryResponse findCategories(Integer pageNumber, Integer pageSize, String sortBy, String sortOrder);
 
     CategoryDTO addCategory(CategoryDTO category);
 

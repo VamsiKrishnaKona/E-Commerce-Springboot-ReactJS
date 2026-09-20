@@ -1,5 +1,6 @@
 package com.ecommerce.exceptions;
 
+import com.ecommerce.payload.APIResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -35,10 +36,11 @@ public class GlobalExceptionHandler
     }
 
     @ExceptionHandler(APIException.class)
-    public ResponseEntity<String> ApiException(APIException exception)
+    public ResponseEntity<APIResponse> ApiException(APIException exception)
     {
         String message = exception.getMessage();
-        return new ResponseEntity<>(message, HttpStatus.BAD_REQUEST);
+        APIResponse response = new APIResponse(message, false);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(CategoryAlreadyExistsWithAnotherIdException.class)
