@@ -14,10 +14,11 @@ import java.util.Set;
 @Entity
 @Data
 @NoArgsConstructor
-@Table(name = "users",
-uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"username", "email"})
-})
+@Table(name = "users")
+//@Table(name = "users"
+//,uniqueConstraints = {
+//        @UniqueConstraint(columnNames = {"username", "email"})
+//})
 public class User
 {
     @Id
@@ -25,19 +26,19 @@ public class User
     @Column(name = "user_id")
     private Long userId;
 
-    @Column(name = "username")
+    @Column(name = "username", unique = true)
     @NotBlank
-    @Size(max = 32)
+    @Size(min = 3, max = 32)
     private String userName;
 
-    @Column(name = "email")
+    @Column(name = "email",  unique = true)
     @NotBlank
     @Email
     @Size(max = 32)
     private String email;
 
     @NotBlank
-    @Size(min = 8, max = 32)
+    @Size(min = 8)
     private String password;
 
     public User(String userName, String email, String password) {
