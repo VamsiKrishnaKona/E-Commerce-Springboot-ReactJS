@@ -1,5 +1,6 @@
 package com.ecommerce.security.JWT;
 
+import com.ecommerce.security.service.UserDetailsImpl;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
@@ -7,12 +8,15 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.WebUtils;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -29,6 +33,9 @@ public class JwtUtils
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
 
+    @Value("${spring.app.cookieName}")
+    private String jwtCookieName;
+
     //Getting JWT from Header
     public String extractTokenFromHeader(HttpServletRequest request)
     {
@@ -41,10 +48,22 @@ public class JwtUtils
         return null;
     }
 
-    //Generating Token for username
-    public String generateTokenForUsername(UserDetails userDetails)
+    //Get JWT from the Cookie
+    public String getTokenFromCookie(HttpServletRequest request)
     {
-        String username = userDetails.getUsername();
+        Cookie cookie = WebUtils.getCookie(request, jwtCookieName);
+
+        if(cookie != null)
+        {
+            return cookie.getValue();
+        }
+        return null;
+    }
+
+    //Generating Token for username
+    public String generateTokenForUsername(String username)
+    {
+        //String username = userDetails.getUsername();
 
         return Jwts.builder()
                 .subject(username)
@@ -52,6 +71,28 @@ public class JwtUtils
                 .expiration(new Date((new Date().getTime() + dateExpirationMilleSeconds)))
                 .signWith(key())
                 .compact();
+    }
+
+    public ResponseCookie generateJwtCookie(UserDetails userPrincipal)
+    {
+        String JwtToken = generateTokenForUsername(userPrincipal.getUsername());
+
+        ResponseCookie responseCookie = ResponseCookie
+                .from(jwtCookieName, JwtToken)
+                .path("/api")
+                .httpOnly(false)
+                .maxAge(24 * 60 * 60)
+                .build();
+
+        return responseCookie;
+    }
+
+    public ResponseCookie cleanJwtCookie()
+    {
+        return ResponseCookie
+                .from(jwtCookieName, null)
+                .path("/api")
+                .build();
     }
 
     //Getting Username from JWT token

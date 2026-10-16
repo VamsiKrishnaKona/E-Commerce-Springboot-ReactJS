@@ -1,10 +1,13 @@
 package com.ecommerce.security.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.List;
 
 public class LoginResponse
 {
     private Long id;
+    @JsonIgnore
     private String jwtToken;
     private String username;
     private List<String> roles;
@@ -20,6 +23,12 @@ public class LoginResponse
     {
         this.id = id;
         this.jwtToken = jwtToken;
+        this.username = username;
+        this.roles = roles;
+    }
+
+    public LoginResponse(Long id, String username, List<String> roles) {
+        this.id = id;
         this.username = username;
         this.roles = roles;
     }

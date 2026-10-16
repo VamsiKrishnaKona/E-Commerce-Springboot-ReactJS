@@ -13,7 +13,9 @@ import com.ecommerce.security.response.MessageResponse;
 import com.ecommerce.security.service.UserDetailsImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,10 +25,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -73,12 +72,13 @@ public class AuthController
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        String jwtToken = jwtUtils.generateTokenForUsername(userDetails);
+        assert userDetails != null;
+        ResponseCookie cookie = jwtUtils.generateJwtCookie(userDetails);
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
 
-        LoginResponse loginResponse = new LoginResponse(userDetails.getId(), jwtToken, userDetails.getUsername(), roles);
+        LoginResponse loginResponse = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
 
-        return new  ResponseEntity<>(loginResponse, HttpStatus.OK);
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(loginResponse);
     }
 
     @PostMapping("/signup")
@@ -132,4 +132,32 @@ public class AuthController
         userRepository.save(user);
         return ResponseEntity.ok().body(new MessageResponse("User registered successfully!"));
     }
+
+    @GetMapping("/username")
+    public ResponseEntity<?> getUsername(Authentication authentication)
+    {
+        if(authentication == null) return ResponseEntity.badRequest().body(new MessageResponse("Error: Authentication object is null."));
+        return ResponseEntity.ok().body(authentication.getName());
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> getUser(Authentication authentication)
+    {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
+
+        LoginResponse loginResponse = new LoginResponse(userDetails.getId(), userDetails.getUsername(), roles);
+
+        return ResponseEntity.ok().body(loginResponse);
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<?> logout(Authentication authentication)
+    {
+        if(authentication == null) return ResponseEntity.badRequest().body(new MessageResponse("You are not logged in."));
+        ResponseCookie nullCookie = jwtUtils.cleanJwtCookie();
+        return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, nullCookie.toString()).body(new MessageResponse("Logout successful."));
+    }
+
 }
